@@ -1,25 +1,59 @@
-from Tkinter import *
+from os.path import basename, splitext
+import tkinter as tk
+from tkinter import Listbox, END
 
-class App:
-
-    def __init__(self, master):
-
-        frame = Frame(master)
-        frame.pack()
-
-        self.button = Button(frame, text="KONEC", fg="red", command=master.destroy)
-        self.button.pack(side=LEFT)
-
-        self.hi_there = Button(frame, text="Pozdrav!", command=self.rekni_ahoj)
-        self.hi_there.pack(side=LEFT)
-
-    def rekni_ahoj(self):
-
-        print ("Ahoj všici!")
+# from tkinter import ttk
 
 
-if __name__=="__main__":
+class About(tk.Toplevel):
+    def __init__(self, parent):
+        super().__init__(parent, class_=parent.name)
+        self.config()
 
-    root = Tk()
-    app = App(root)
-    root.mainloop()
+        btn = tk.Button(self, text="Konec", command=self.close)
+        btn.pack()
+
+    def close(self):
+        self.destroy()
+
+
+class Application(tk.Tk):
+    name = basename(splitext(basename(__file__.capitalize()))[0])
+    name = "Foo"
+
+    def __init__(self):
+        super().__init__(className=self.name)
+        self.title(self.name)
+        self.bind("<Escape>", self.quit)
+        self.lbl = tk.Label(self, text="Hello World")
+        self.lbl.pack()
+        self.btn = tk.Button(self, text="Quit", command=self.quit)
+        self.btn.pack()
+        self.btn2 = tk.Button(self, text="About", command=self.about)
+        self.btn2.pack()
+
+        self.lstBx = Listbox(self)
+        self.lstBx.pack()
+        self.lstBx.bind("<ButtonRelease-1>", self.kliknu)
+
+        f = open("listek.txt")
+        self.radky = f.readlines()
+
+        for radek in self.radky:
+            radek = radek.split()
+            self.lstBx.insert(END, radek[0])
+
+    def kliknu(self, event):
+        index = self.lstBx.curselection()[0]
+        print(self.radky[index])
+
+    def about(self):
+        window = About(self)
+        window.grab_set()
+
+    def quit(self, event=None):
+        super().quit()
+
+
+app = Application()
+app.mainloop()
